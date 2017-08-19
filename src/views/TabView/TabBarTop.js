@@ -9,7 +9,8 @@ import type {
   NavigationAction,
   NavigationScreenProp,
   NavigationState,
-  Style,
+  ViewStyleProp,
+  TextStyleProp,
 } from '../../TypeDefinition';
 
 import type { TabScene } from './TabView';
@@ -32,12 +33,15 @@ type Props = {
   navigation: NavigationScreenProp<NavigationState, NavigationAction>,
   getLabel: (scene: TabScene) => ?(React.Element<*> | string),
   renderIcon: (scene: TabScene) => React.Element<*>,
-  labelStyle?: Style,
-  iconStyle?: Style,
+  labelStyle?: TextStyleProp,
+  iconStyle?: ViewStyleProp,
 };
 
-export default class TabBarTop
-  extends PureComponent<DefaultProps, Props, void> {
+export default class TabBarTop extends PureComponent<
+  DefaultProps,
+  Props,
+  void
+> {
   static defaultProps = {
     activeTintColor: '#fff',
     inactiveTintColor: '#fff',
@@ -67,14 +71,15 @@ export default class TabBarTop
     const inputRange = [-1, ...routes.map((x: *, i: number) => i)];
     const outputRange = inputRange.map(
       (inputIndex: number) =>
-        inputIndex === index ? activeTintColor : inactiveTintColor,
+        inputIndex === index ? activeTintColor : inactiveTintColor
     );
     const color = position.interpolate({
       inputRange,
-      outputRange,
+      outputRange: (outputRange: Array<string>),
     });
 
-    const label = this.props.getLabel(scene);
+    const tintColor = scene.focused ? activeTintColor : inactiveTintColor;
+    const label = this.props.getLabel({ ...scene, tintColor });
     if (typeof label === 'string') {
       return (
         <Animated.Text style={[styles.label, { color }, labelStyle]}>
@@ -83,7 +88,7 @@ export default class TabBarTop
       );
     }
     if (typeof label === 'function') {
-      return label(scene);
+      return label({ ...scene, tintColor });
     }
 
     return label;
